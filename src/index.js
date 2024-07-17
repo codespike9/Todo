@@ -17,5 +17,6 @@ const SERVER_URL = `http://localhost:${PORT}`;
         })  
     } catch (error) {
         console.error("MONGO db connection failed!!!",err);
+        process.exit(1);
     }
 })();

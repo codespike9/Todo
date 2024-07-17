@@ -5,6 +5,8 @@ const cookieParser=require('cookie-parser');
 const cors=require('cors');
 const morgan=require('morgan');
 
+const apiRouter=require('./routes/apiRouter');
+
 //express app initialization
 const app=express();
 
@@ -19,5 +21,7 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use(morgan('dev'));
+
+app.use('/api',apiRouter);
 
 module.exports=app;
