@@ -1,10 +1,9 @@
 const { Error } = require("mongoose");
-const { Todo } = require("../models/TodoModels");
+const mongoose = require("mongoose");
+const Todo = require("../models/TodoModels");
 
-const NodeCache = require('node-cache');
-const myCache = new NodeCache({ stdTTL: 3600*24 });
-
-
+const NodeCache = require("node-cache");
+const myCache = new NodeCache({ stdTTL: 3600 * 24 });
 
 //Adding a task.
 const addTask = async (req, res) => {
@@ -12,33 +11,31 @@ const addTask = async (req, res) => {
     const data = req.body;
     data.user_id = req.user.id;
 
-    if (!data.title)
-      res
+    if (!data.title) {
+      return res
         .status(400)
         .json({ error: "Bad Request", message: "Title is required." });
+    }
 
-    const new_task = new Todo(data);
-    await new_task.save();
+    const new_task = await Todo.create(data);
 
     if (new_task) {
-
       if (myCache.has(`tasks:${req.user.id}`)) {
         myCache.del(`tasks:${req.user.id}`);
       }
 
-      res.status(201).json({
+      return res.status(201).json({
         status: 201,
+        success: true,
         message: "Task added successfully.",
         task: new_task,
       });
-
     } else {
       throw Error("Cannot add task.");
     }
-
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -47,18 +44,24 @@ const updateTask = async (req, res) => {
   try {
     const id = req.query.id;
     const task = await Todo.findById(id);
-
-    if (task.user_id !== req.user.id)
-      res.status(401).json({ message: "Unauthorized" });
-
-    const updatedTodo = await Todo.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedTodo) {
+  
+    if (!task) {
       return res.status(404).json({ message: "Todo not found" });
     }
+
+    if (task.user_id != req.user.id)
+      return res.status(401).json({ message: "Unauthorized" });
+
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(`${id}`) },
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+
 
     if (myCache.has(`tasks:${req.user.id}`)) {
       myCache.del(`tasks:${req.user.id}`);
@@ -66,10 +69,9 @@ const updateTask = async (req, res) => {
     res
       .status(200)
       .json({ message: "Updated successfully.", updated_data: updatedTodo });
-
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -80,8 +82,8 @@ const changeTaskStatus = async (req, res) => {
 
     const task = await Todo.findById(id);
 
-    if (task.user_id !== req.user.id)
-      res.status(401).json({ message: "Unauthorized" });
+    if (task.user_id != req.user.id)
+      return res.status(401).json({ message: "Unauthorized" });
 
     const { status } = req.body;
 
@@ -101,14 +103,13 @@ const changeTaskStatus = async (req, res) => {
     if (myCache.has(`tasks:${req.user.id}`)) {
       myCache.del(`tasks:${req.user.id}`);
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "Status updated successfully.",
       updated_data: updatedTodo.status,
     });
-    
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -117,20 +118,19 @@ const deleteTask = async (req, res) => {
   try {
     const id = req.params.id;
     const task = await Todo.findById(id);
-
-    if (task.user_id !== req.user.id)
-      res.status(401).json({ message: "Unauthorized" });
+    
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    if (task.user_id != req.user.id)
+      return res.status(401).json({ message: "Unauthorized" });
 
     const deletedTodo = await Todo.findByIdAndDelete(id);
 
-    if (!deletedTodo) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-    res.status(200).json({ message: "Todo deleted" });
-
+    return res.status(200).json({ message: "Todo deleted" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -141,22 +141,25 @@ const getAllTasks = async (req, res) => {
 
     const cachedTasks = myCache.get(`tasks:${user_id}`);
     if (cachedTasks) {
-      return res.status(200).json({ message: 'Retrieved the list from cache', tasks: cachedTasks });
+      return res
+        .status(200)
+        .json({ message: "Retrieved the list from cache", tasks: cachedTasks });
     }
 
-    const tasks = await Todo.find({ user_id }).sort({ created_at: -1 });
+    const tasks = await Todo.find({
+      user_id: new mongoose.Types.ObjectId(`${user_id}`),
+    }).sort({ created_at: -1 });
 
     if (!tasks.length) {
-      res.status(404).json({ message: "You have no tasks" });
+      return res.status(404).json({ message: "You have no tasks" });
     }
 
     myCache.set(`tasks:${user_id}`, tasks);
 
-    res.status(200).json({ message: "Retrieved the list", tasks: tasks });
-
+    return res.status(200).json({ message: "Retrieved the list", tasks: tasks });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -169,18 +172,16 @@ const getTasksByPriority = async (req, res) => {
     });
 
     if (!tasks.length) {
-      res.status(404).json({ message: "You have no tasks" });
+      return res.status(404).json({ message: "You have no tasks" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Retrieved the list of tasks based on priority.",
-        tasks: tasks,
-      });
+    return res.status(200).json({
+      message: "Retrieved the list of tasks based on priority.",
+      tasks: tasks,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -191,18 +192,16 @@ const getAllPendingTaks = async (req, res) => {
     const tasks = await Todo.find({ user_id, status: "pending" });
 
     if (!tasks.length) {
-      res.status(404).json({ message: "You have no pending tasks." });
+      return res.status(404).json({ message: "You have no pending tasks." });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Retrieved the list of pending tasks",
-        pending_tasks: tasks,
-      });
+    return res.status(200).json({
+      message: "Retrieved the list of pending tasks",
+      pending_tasks: tasks,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -213,19 +212,25 @@ const getAllCompletedTaks = async (req, res) => {
     const tasks = await Todo.find({ user_id, status: "completed" });
 
     if (!tasks.length) {
-      res.status(404).json({ message: "You have no completed tasks." });
+      return res.status(404).json({ message: "You have no completed tasks." });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Retrieved the list of completed tasks",
-        completed_tasks: tasks,
-      });
+    return res.status(200).json({
+      message: "Retrieved the list of completed tasks",
+      completed_tasks: tasks,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
-module.exports = { addTask, updateTask, changeTaskStatus, deleteTask, getAllTasks, getAllCompletedTaks, getAllPendingTaks};
+module.exports = {
+  addTask,
+  updateTask,
+  changeTaskStatus,
+  deleteTask,
+  getAllTasks,
+  getAllCompletedTaks,
+  getAllPendingTaks,
+};

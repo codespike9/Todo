@@ -26,11 +26,13 @@ const registerUser = async (req, res) => {
         });
     }
 
-    const new_user = await User.create({
+    let new_user = new User({
       name,
       email,
       password,
     });
+
+    new_user=await new_user.save();
 
     const payload = {
       id: new_user.id,
@@ -76,8 +78,6 @@ const loginUser = async (req, res) => {
       const userData = await User.findOne({
         email
       });
-
-      console.log(userData);
   
       if (!userData || !(await userData.comparePassword(password))) {
         return res.status(401).json({ message: "Invalid username or password" });
