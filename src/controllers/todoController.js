@@ -44,7 +44,7 @@ const updateTask = async (req, res) => {
   try {
     const id = req.query.id;
     const task = await Todo.findById(id);
-  
+
     if (!task) {
       return res.status(404).json({ message: "Todo not found" });
     }
@@ -60,8 +60,6 @@ const updateTask = async (req, res) => {
         runValidators: true,
       }
     );
-
-
 
     if (myCache.has(`tasks:${req.user.id}`)) {
       myCache.del(`tasks:${req.user.id}`);
@@ -118,7 +116,7 @@ const deleteTask = async (req, res) => {
   try {
     const id = req.params.id;
     const task = await Todo.findById(id);
-    
+
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
@@ -156,7 +154,9 @@ const getAllTasks = async (req, res) => {
 
     myCache.set(`tasks:${user_id}`, tasks);
 
-    return res.status(200).json({ message: "Retrieved the list", tasks: tasks });
+    return res
+      .status(200)
+      .json({ message: "Retrieved the list", tasks: tasks });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error." });

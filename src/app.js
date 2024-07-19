@@ -4,6 +4,8 @@ const bodyParser=require('body-parser');
 const cookieParser=require('cookie-parser');
 const cors=require('cors');
 const morgan=require('morgan');
+const setupSwagger = require('./swagger');
+
 
 const apiRouter=require('./routes/apiRouter');
 
@@ -21,6 +23,7 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use(morgan('dev'));
+setupSwagger(app);
 
 app.use('/api',apiRouter);
 
