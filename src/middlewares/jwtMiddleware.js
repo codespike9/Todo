@@ -4,7 +4,7 @@ class Jwt {
   verifyAccessToken = (req, res, next) => {
 
     let token = req.cookies.accessToken;
-    if (!token) res.status(400).json({ error: "Token non found" });
+    if (!token) return res.status(400).json({ error: "Token non found" });
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);

@@ -2,8 +2,8 @@ const mongoose=require('mongoose');
 require('dotenv').config();
 
 async function dbConnect(){
-    DBURI = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}`;
-    DBNAME = `${process.env.MONGODB_DATABASE}`;
+    DBURI = `${process.env.DBURI}`;
+    DBNAME = `${process.env.DATABASE_NAME}`;
 
     try {
         const connectionInstance=await mongoose.connect(`${DBURI}/${DBNAME}`);

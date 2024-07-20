@@ -43,12 +43,12 @@ const addTask = async (req, res) => {
 const updateTask = async (req, res) => {
   try {
     const id = req.query.id;
-    const task = await Todo.findById(id);
-
+    const task = await Todo.findById(new mongoose.Types.ObjectId(`${id}`));
+    console.log(task);
     if (!task) {
       return res.status(404).json({ message: "Todo not found" });
     }
-
+    console.log(task.user_id +" "+ req.user.id);
     if (task.user_id != req.user.id)
       return res.status(401).json({ message: "Unauthorized" });
 

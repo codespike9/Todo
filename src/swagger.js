@@ -1,5 +1,3 @@
-// src/swagger.js
-
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
@@ -13,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:8001/api', // Change this to your API server URL
+        url: 'http://localhost:8001/api',
       },
     ],
     components: {
@@ -99,13 +97,18 @@ const options = {
         },
       },
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'accessToken',
         },
       },
     },
+    security: [
+      {
+        cookieAuth: [],
+      },
+    ],
   },
   apis: ['./src/routes/*.js'], // Path to the API docs
 };

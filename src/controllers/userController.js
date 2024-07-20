@@ -82,7 +82,7 @@ const loginUser = async (req, res) => {
 
     const access_token = generateToken(payload);
     if (userData && access_token) {
-      res.cookie("access_token", access_token, {
+      res.cookie("accessToken", access_token, {
         httpOnly: true,
         maxAge: 3 * 24 * 60 * 60 * 1000,
       });
