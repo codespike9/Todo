@@ -9,10 +9,7 @@ const generateToken = require("../../src/utils/generateToken");
 
 beforeAll(async () => {
   const mongoUri = process.env.MONGOURI_TODO;
-  await mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await mongoose.connect(mongoUri);
 });
 
 afterAll(async () => {

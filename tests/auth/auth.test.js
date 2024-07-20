@@ -6,10 +6,7 @@ const User = require("../../src/models/UserModels");
 
 beforeAll(async () => {
   const mongoUri=process.env.MONGOURI_AUTH;
-  await mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await mongoose.connect(mongoUri);
 });
 
 afterAll(async () => {
