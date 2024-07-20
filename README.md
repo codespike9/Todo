@@ -1,11 +1,10 @@
 # Todo Application
 
-A simple Todo application built with Node.js, Express, and MongoDB.
+A Todo application built with Node.js, Express, and MongoDB.
 
 ## Prerequisites
 
-- Node.js (v14 or later)
-- MongoDB
+- Node.js (v16 or later)
 
 ## Setup
 
