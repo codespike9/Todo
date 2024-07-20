@@ -48,18 +48,11 @@ Example of `.env` file:
 DATABASE_NAME=Todo
 PORT=8001
 CORS_ORIGIN='*'
-DBURI=mongodb+srv://<username>:<password>@<cluster_name>.mongodb.net/
+DBURI=mongodb+srv://<username>:<password>@<cluster_name>.mongodb.net
 JWT_SECRET=SecretKey
 JWT_EXPIRE=4d
 ```
 
-### 5. Start the Server
-
-Start the server with the following command:
-
-```bash
-npm run dev
-```
 ### 4. Configure Environment variables for testing
 
 Create a `.env.tests` file in the project root and add the following configuration settings:
@@ -85,15 +78,23 @@ JWT_SECRET=secretKey
 JWT_EXPIRE=4d
 ```
 
+
+### 5. Start the Server
+
+Start the server with the following command:
+
+```bash
+npm run dev
+```
 The server should now be running on [http://localhost:8001](http://localhost:8001).
 
 ## API Documentation
 
 API documentation is available at [http://localhost:8001/api-docs](http://localhost:8001/api-docs)
 
-Project Documentation : [https://documenter.getpostman.com/view/29101734/2sA3kUGN2V](https://documenter.getpostman.com/view/29101734/2sA3kUGN2V)
+Application Documentation : [https://documenter.getpostman.com/view/29101734/2sA3kUGN2V](https://documenter.getpostman.com/view/29101734/2sA3kUGN2V)
 
-## Running Tests
+## Running Test Cases
 
 To run the test suite, use the following command:
 
