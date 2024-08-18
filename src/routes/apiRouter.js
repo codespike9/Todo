@@ -16,6 +16,6 @@ const authRouter = require("./authRouter");
 // Use the auth and todo routers
 router.use('/user', authRouter);
 router.use('/todo', todoRouter);
-router.get('/test',(req,res)=>res.send("Hello User"))
+router.get('/test',(req,res)=>res.send("Hello Dharmaraj"))
 
 module.exports = router;
