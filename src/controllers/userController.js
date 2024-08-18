@@ -12,6 +12,17 @@ const registerUser = async (req, res) => {
         message: "All fields are required.",
       });
     }
+    // User.findOne({email}).then((existingUser)=>{
+    //   if(existingUser){
+    //     return res.status(409).json({
+    //       status: 409,
+    //       error: "Conflict",
+    //       message: "User already exists.",
+    //     });
+    //   }
+    // }).catch((err)=>{
+    //   console.error(err.message);
+    // })
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
