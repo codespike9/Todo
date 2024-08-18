@@ -28,5 +28,7 @@ jobs:
     - run: npm run build --if-present
     - run: 
           pm2 stop todo || true
+    - run:
           pm2 start src/index.js --name todo
+    - run:
           pm2 save
